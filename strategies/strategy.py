@@ -3,6 +3,7 @@ from typing import Optional
 import numpy as np
 from machine_learning.data import DataProcessing, CandleStickDataProcessing
 from datetime import datetime
+from typing import final
 
 
 class Strategy:
@@ -26,6 +27,7 @@ class Strategy:
         """
         raise NotImplementedError("Method 'on_data()' must be defined in the subclass.")
 
+    @final
     def buy(self, price, take_profit=None, stop_loss=None, entry_time=None, metadata=None):
         if not self.in_position:  # Check if not already in a position
             position = {
@@ -40,6 +42,7 @@ class Strategy:
             self.positions.append(position)
             self.in_position = True
 
+    @final
     def sell(self, price, take_profit=None, stop_loss=None, entry_time=None, metadata=None):
         if not self.in_position:  # Check if not already in a position
             position = {
@@ -54,6 +57,7 @@ class Strategy:
             self.positions.append(position)
             self.in_position = True
 
+    @final
     def set_ml(self, model: Optional[BaseEstimator] = None, columns=None, rows=None, df=None, cs_pattern=False):
         self.model = model
         self.__columns = columns
@@ -61,6 +65,7 @@ class Strategy:
         self.__df = df
         self.cs_patterns = cs_pattern
 
+    @final
     def predict(self, current_entry_time: int, cs_features: np.ndarray = None):
         # Ensure that all necessary parameters are set
         if self.model is None or self.__columns is None or self.__rows is None or self.__df is None:
@@ -87,6 +92,7 @@ class Strategy:
                 "The array contains more than one element and cannot be directly converted to a single float.")
         return value_as_float
 
+    @final
     def trading_hours(self, date: str) -> bool:
 
         if isinstance(date, np.int64):  # Checking for Unix timestamp (ml backtest)
