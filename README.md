@@ -27,6 +27,12 @@ This software backtest a trading strategy and runs the results through a user de
 
 ## How to use
 
+Install all dependencies.
+
+```
+pip install -r requirements.txt
+```
+
 First you need to import all the required classes.
 
 ```python
@@ -76,3 +82,4 @@ print(ml_backtest.results())
 Thats it! You should see similar output text wise as the outputs provided above. A more in depth _**how to use**_ guide to customize your machine learning and strategy can be found below.
 
 * [Machine Learning Class Guide](backtesting-with-machine-learning/machine-learning-class-guide.md)
+* [Trading Strategy Class Guide](backtesting-with-machine-learning/strategy-creation-class-guide.md)
