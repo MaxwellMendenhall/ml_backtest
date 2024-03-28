@@ -1,4 +1,4 @@
-from machine_learning.interface import MachineLearningInterface
+from machine_learning.interface import MachineLearningInterface, TargetInterface
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import pandas as pd
@@ -14,7 +14,9 @@ class RandomForestRegressorTrainer(MachineLearningInterface):
         # these are the columns you want trained, in my case I want the column
         # that is already there and a column I am adding in the feature_engineer()
         # method
-        self.get_columns = ['EMA_Diff', 'SMA_Diff', 'RSI', 'MACD', 'MACD_signal', 'MACD_hist']
+
+        # 'EMA_Diff', 'SMA_Diff', 'RSI', 'MACD', 'MACD_signal', 'MACD_hist'
+        self.get_columns = ['EMA_Diff', 'SMA_Diff', 'MACD_hist']
 
     def feature_engineer(self):
         # here is where you can add addition columns of features you want to be used in training
@@ -42,3 +44,12 @@ class RandomForestRegressorTrainer(MachineLearningInterface):
 
         mse = mean_squared_error(y_test, self.predictions)
         print(f"Mean Squared Error: {mse}")
+
+
+class BasicTarget(TargetInterface):
+    def target_engineer(self):
+        min_value = self.trades['target'].min()
+        self.trades['target'] = self.trades['target'].apply(lambda x: min(x, 15))
+        self.trades['target'] = self.trades['target'].apply(lambda x: max(x, min_value))
+
+        print(self.trades.to_string())

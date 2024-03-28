@@ -1,6 +1,6 @@
 import numpy as np
 from joblib import dump
-from machine_learning.interface import MachineLearningInterface
+from machine_learning.interface import MachineLearningInterface, TargetInterface
 from sklearn.model_selection import train_test_split
 from machine_learning.data import DataProcessing
 from typing import Type
@@ -11,9 +11,14 @@ import os
 class MachineLearning:
 
     def __init__(self, ml_class: Type[MachineLearningInterface],
-                 df: pd.DataFrame, results: pd.DataFrame):
+                 df: pd.DataFrame, results: pd.DataFrame,
+                 target_class: Type[TargetInterface] = None):
         self.__df = df
         self.__results = results
+        if target_class is not None:
+            self.__target_class = target_class(trades=self.__results, data=self.__df)
+            self.__target_class.target_engineer()
+            self.__results = self.__target_class.trades
         self.__ml = ml_class(self.__df)
 
     def run(self, dp_pattern=None) -> None:

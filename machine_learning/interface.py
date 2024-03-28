@@ -60,3 +60,17 @@ class MachineLearningInterface:
         :return: model
         """
         return self.model
+
+
+class TargetInterface:
+    def __init__(self, trades: pd.DataFrame, data: pd.DataFrame):
+        self.trades = trades
+        self.data = data
+
+    def target_engineer(self):
+        """
+        Will be called for defining the target values. If not defined
+        default target calculation (high - entry diff) will take
+        precedent.
+        """
+        pass

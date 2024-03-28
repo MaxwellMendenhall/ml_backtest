@@ -65,7 +65,7 @@ class Backtest:
 
                     # Calculate the difference between 'Open' at entry and the new 'highest high'
                     # Assumes 'open at entry' is stored in the position when the position is created
-                    position['high - entry diff'] = position['highest high'] - position['entry price']
+                    position['target'] = position['highest high'] - position['entry price']
 
                 if position['type'] == 'long':
                     if lows[index] <= position['stop loss']:

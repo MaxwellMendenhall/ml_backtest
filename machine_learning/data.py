@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class DataProcessing:
-    def __init__(self, df, results, rows, columns):
+    def __init__(self, df, results, rows, columns, target=None):
         """
         Initialize the class with the dataframe, results, and other parameters.
         Data alteration will happen in the `__prep_data` function.
@@ -13,9 +13,9 @@ class DataProcessing:
         self.__rows = rows
         self.__columns = columns
         self.__candlestick_features = None
+        self.__target = target
 
         # Initialize placeholders for transformed data
-        self.__target = None
         self.__all_data = None
         self.__entry_times = None
         self.__columns_indices = None
@@ -34,11 +34,12 @@ class DataProcessing:
 
         # Convert 'entry time' & 'high - entry diff' to numpy array
         entry_times_np = self.__results['entry time'].values
-        high_np = self.__results['high - entry diff'].values
+        high_np = self.__results['target'].values
 
         # Adjust column indices to include 'date' column
         # Subtracting 1 to adjust for 0-based indexing in numpy
-        column_indices = [self.__df.columns.get_loc(c) - 1 for c in self.__columns]
+        # column_indices = [self.__df.columns.get_loc(c) - 1 for c in self.__columns]
+        column_indices = [self.__df.columns.get_loc(c) for c in self.__columns]
 
         # Store processed data
         self.__target = high_np
