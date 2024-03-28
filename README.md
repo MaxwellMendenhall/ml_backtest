@@ -76,3 +76,4 @@ print(ml_backtest.results())
 Thats it! You should see similar output text wise as the outputs provided above. A more in depth _**how to use**_ guide to customize your machine learning and strategy can be found below.
 
 * [Machine Learning Class Guide](backtesting-with-machine-learning/machine-learning-class-guide.md)
+* [Trading Strategy Class Guide](backtesting-with-machine-learning/strategy-creation-class-guide.md)
