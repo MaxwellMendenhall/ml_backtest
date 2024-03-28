@@ -27,6 +27,12 @@ This software backtest a trading strategy and runs the results through a user de
 
 ## How to use
 
+Install all dependencies.
+
+```
+pip install -r requirements.txt
+```
+
 First you need to import all the required classes.
 
 ```python
