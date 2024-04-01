@@ -49,7 +49,5 @@ class RandomForestRegressorTrainer(MachineLearningInterface):
 class BasicTarget(TargetInterface):
     def target_engineer(self):
         min_value = self.trades['target'].min()
-        self.trades['target'] = self.trades['target'].apply(lambda x: min(x, 15))
+        self.trades['target'] = self.trades['target'].apply(lambda x: min(x, 7))
         self.trades['target'] = self.trades['target'].apply(lambda x: max(x, min_value))
-
-        print(self.trades.to_string())
