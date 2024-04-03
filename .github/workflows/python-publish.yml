@@ -30,6 +30,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+    - name: Install TA-Lib C library
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libta-lib-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -48,6 +52,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+    - name: Install TA-Lib C library
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libta-lib-dev
     - name: Install build tools
       run: |
         python -m pip install --upgrade pip
@@ -59,3 +67,4 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+
