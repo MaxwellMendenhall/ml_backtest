@@ -1,9 +1,14 @@
 from setuptools import setup, find_packages
+import os
 
-with open('README.md', encoding='utf-8') as f:
+here = os.path.abspath(os.path.dirname(__file__))
+
+readme_path = os.path.join(here, 'README.md')
+with open(readme_path, encoding='utf-8') as f:
     long_description = f.read()
 
-with open('requirements.txt') as f:
+requirements_path = os.path.join(here, 'requirements.txt')
+with open(requirements_path) as f:
     requirements = f.read().splitlines()
 
 setup(
