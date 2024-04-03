@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 
 class CandleStickPatterns:
@@ -23,5 +24,7 @@ class CandleStickPatterns:
 class Data:
     @staticmethod
     def data():
-        df = pd.read_csv('./last_4000_rows.csv')
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        csv_file_path = os.path.join(dir_path, 'last_4000_rows.csv')
+        df = pd.read_csv(csv_file_path)
         return df

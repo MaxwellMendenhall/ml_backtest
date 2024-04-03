@@ -7,16 +7,14 @@ from ml_backtest.data import Data
 
 
 def test_backtesting_with_machine_learning():
-    df = Data.data().rename(columns={'Time': 'date', 'Open': 'open', 'Close': 'close', 'High': 'high', 'Low': 'low'})
-
     strategy = InvertedHammer()
 
-    backtest = Backtest(df, strategy)
+    backtest = Backtest(Data.data(), strategy)
     backtest_results = backtest.results()
     assert backtest_results is not None
 
     ml = MachineLearning(ml_class=RandomForestRegressorTrainer,
-                         df=df,
+                         df=Data.data(),
                          results=backtest.get_trades())
     ml.run(dp_pattern=CandleStickDataProcessing.calculate_inverted_hammer_features)
 
