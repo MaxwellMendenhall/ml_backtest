@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class CandleStickPatterns:
     @staticmethod
     def is_inverted_hammer(current_open, current_close, current_high, current_low):
@@ -15,3 +18,10 @@ class CandleStickPatterns:
         return (current_close >= prev_open > prev_close >= current_open and
                 current_close > current_open and
                 current_close - current_open > prev_open - prev_close)
+
+
+class Data:
+    @staticmethod
+    def data():
+        df = pd.read_csv('./last_4000_rows.csv')
+        return df
