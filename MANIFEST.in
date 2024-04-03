@@ -1,0 +1,5 @@
+include LICENSE
+recursive-include backtesting-with-machine-learning *.md
+recursive-include backtesting-with-machine-learning/.gitbook *
+exclude backtesting-with-machine-learning/secrets.json
+global-exclude *.pyc

@@ -1,4 +1,6 @@
-from strategies.strategy import Strategy
+from ml_backtest.interfaces import Strategy
+from ml_backtest.data import CandleStickPatterns
+from ml_backtest.machine_learning import CandleStickDataProcessing
 from datetime import time
 
 

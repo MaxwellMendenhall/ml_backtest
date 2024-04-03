@@ -1,30 +1,31 @@
-from strategies.strategy import Strategy
+from ml_backtest.interfaces import Strategy
+from ml_backtest.data import CandleStickPatterns
+from ml_backtest.machine_learning import CandleStickDataProcessing
 from datetime import time
 
 
-class PiercingPattern(Strategy):
+class BullishHarami(Strategy):
     def init(self):
         self.market_open_time = time(9, 30)
         self.market_close_time = time(16, 10)
 
     def on_data(self, index, lows, highs, closes, opens, dates):
-        # Ensure there's at least one previous candle to compare with
+        # Ensure there is at least one previous candle to compare with
         if index > 0:
             current_open = opens[index]
             current_close = closes[index]
             current_date = dates[index]
             prev_open = opens[index - 1]
             prev_close = closes[index - 1]
-            prev_low = lows[index - 1]
 
-            # Check for Piercing Pattern
-            is_piercing_pattern = (prev_close < prev_open and
-                                   current_open < prev_low and
-                                   prev_open > current_close > prev_close + ((prev_open - prev_close) / 2))
+            # Check for bullish harami pattern
+            is_bullish_harami = (prev_open > prev_close and
+                                 prev_close <= current_open < current_close <= prev_open and
+                                 current_close - current_open < prev_open - prev_close)
 
-            # Enter a long position if a Piercing Pattern is detected
-            if is_piercing_pattern and not self.in_position and self.trading_hours(current_date):
-                # Assuming entry at the current close
+            # Enter a long position if a bullish harami pattern is detected
+            if is_bullish_harami and not self.in_position and self.trading_hours(current_date):
+                # Assuming you want to enter at the next candle's open, which is current_close
                 entry_price = current_close
                 # Calculate take profit and stop loss as per your strategy
                 if self.model is not None:

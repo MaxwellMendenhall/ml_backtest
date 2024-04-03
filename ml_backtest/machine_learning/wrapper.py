@@ -1,8 +1,8 @@
 import numpy as np
 from joblib import dump
-from machine_learning.interface import MachineLearningInterface, TargetInterface
+from ml_backtest.interfaces import MachineLearningInterface, TargetInterface
 from sklearn.model_selection import train_test_split
-from machine_learning.data import DataProcessing
+from ml_backtest.machine_learning import DataProcessing
 from typing import Type
 import pandas as pd
 import os
@@ -58,9 +58,13 @@ class MachineLearning:
         return self.__ml.get_model(), self.__ml.get_columns, self.__ml.get_rows
 
     def dump_model(self, filename):
-        models_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'models')
-        if not os.path.exists(models_dir):
-            os.makedirs(models_dir)
-        model_filename = os.path.join(models_dir, filename + '.joblib')
+        cwd = os.getcwd()
+        model_filename = os.path.join(cwd, filename + '.joblib')
+
+        # Check if the directory exists, though getcwd() should always exist
+        if not os.path.exists(cwd):
+            os.makedirs(cwd)  # In most cases, this will not be necessary
+
+        # Dump the model to the specified filename
         dump(self.__ml.get_model(), model_filename)
         print(f"\033[91mModel saved to {model_filename}\033[0m")

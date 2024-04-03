@@ -1,15 +1,14 @@
 import pandas as pd
-from backtest.backtest import Backtest
-from strategies.invertedhammer import InvertedHammer
-from machine_learning.wrapper import MachineLearning
-from models.rfr import RandomForestRegressorTrainer
-from machine_learning.data import CandleStickDataProcessing
+from ml_backtest import Backtest, MachineLearning
+from ml_backtest.strategies import InvertedHammer
+from ml_backtest.models import RandomForestRegressorTrainer
+from ml_backtest.machine_learning import CandleStickDataProcessing
 
 if __name__ == '__main__':
     #
     # This is an example for backtesting a inverted hammer strategy with machine learning
     #
-    df = pd.read_csv('YOUR CSV FILE WITH DATA.csv')
+    df = pd.read_csv('YOUR CSV FILE NAME.csv')
 
     # Make sure your csv file has OHLC with dates. Rename them like shown below
     df = df.rename(columns={'Time': 'date', 'Open': 'open', 'Close': 'close', 'High': 'high', 'Low': 'low'})
@@ -22,7 +21,7 @@ if __name__ == '__main__':
                          df=df,
                          results=backtest.get_trades())
     ml.run(dp_pattern=CandleStickDataProcessing.calculate_inverted_hammer_features)
-    ml.dump_model(filename='YOUR FILE NAME')
+    ml.dump_model(filename='YOUR MODEL FILE NAME')
     model, columns, rows = ml.get_util()
     data = ml.get_data()
 

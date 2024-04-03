@@ -1,9 +1,85 @@
+import pandas as pd
+from ml_backtest.machine_learning import DataProcessing
+from datetime import datetime
+from typing import final
 from sklearn.base import BaseEstimator
 from typing import Optional
 import numpy as np
-from machine_learning.data import DataProcessing, CandleStickDataProcessing
-from datetime import datetime
-from typing import final
+
+
+class MachineLearningInterface:
+
+    def __init__(self, data: pd.DataFrame):
+
+        if type(self).get_model != MachineLearningInterface.get_model:
+            raise TypeError("get_model method should not be overridden")
+
+        if isinstance(data, pd.DataFrame):
+            self.data = data
+            self.model = None
+            self.predictions = None
+            self.get_rows = 10
+            self.get_columns = ['Close']
+
+        else:
+            print('Data being passed into MachineLearningWorker is not a list of type DataContainer.')
+
+    def feature_engineer(self):
+        """
+        Create new features or change current ones. Method will be called
+        before training and predict. Make sure to do all desired changes in here.
+
+        :return:
+        """
+        raise NotImplementedError("This method must be implemented by a subclass")
+
+    def train(self, x_train, y_train, x_test, y_test):
+        """
+        Will be called after feature engineer.
+        Define desired model in here. Fit model in here also.
+
+        :param x_train:
+        :param y_train:
+        :param x_test:
+        :param y_test:
+        :return:
+        """
+        raise NotImplementedError("This method must be implemented by a subclass")
+
+    def predict(self, x_train, y_train, x_test, y_test):
+        """
+        Will be called after train. Used to specifying current statistics
+        for the trained mode.
+
+        :param x_train:
+        :param y_train:
+        :param x_test:
+        :param y_test:
+        :return:
+        """
+        raise NotImplementedError("This method must be implemented by a subclass")
+
+    def get_model(self):
+        """
+        Returns the model used in training.
+
+        :return: model
+        """
+        return self.model
+
+
+class TargetInterface:
+    def __init__(self, trades: pd.DataFrame, data: pd.DataFrame):
+        self.trades = trades
+        self.data = data
+
+    def target_engineer(self):
+        """
+        Will be called for defining the target values. If not defined
+        default target calculation (high - entry diff) will take
+        precedent.
+        """
+        pass
 
 
 class Strategy:
@@ -106,22 +182,3 @@ class Strategy:
 
         # check if the converted time falls between user inputted open and close time
         return self.market_open_time <= current_time <= self.market_close_time
-
-
-class CandleStickPatterns:
-    @staticmethod
-    def is_inverted_hammer(current_open, current_close, current_high, current_low):
-        body_length = abs(current_open - current_close)
-        upper_shadow = current_high - max(current_open, current_close)
-        total_length = current_high - current_low
-        lower_shadow = min(current_open, current_close) - current_low
-
-        return (((current_high - current_low) > 3 * body_length) and
-                (upper_shadow / (0.001 + total_length) > 0.6) and
-                (lower_shadow / (0.001 + total_length) < 0.4))
-
-    @staticmethod
-    def is_bullish_engulfing(current_open, current_close, prev_open, prev_close):
-        return (current_close >= prev_open > prev_close >= current_open and
-                current_close > current_open and
-                current_close - current_open > prev_open - prev_close)

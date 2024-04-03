@@ -1,4 +1,4 @@
-from machine_learning.interface import MachineLearningInterface, TargetInterface
+from ml_backtest.interfaces import MachineLearningInterface, TargetInterface
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import pandas as pd

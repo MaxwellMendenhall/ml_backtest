@@ -1,29 +1,31 @@
-from strategies.strategy import Strategy
+from ml_backtest.interfaces import Strategy
+from ml_backtest.data import CandleStickPatterns
+from ml_backtest.machine_learning import CandleStickDataProcessing
 from datetime import time
 
 
-class MorningStar(Strategy):
+class PiercingPattern(Strategy):
     def init(self):
         self.market_open_time = time(9, 30)
         self.market_close_time = time(16, 10)
 
     def on_data(self, index, lows, highs, closes, opens, dates):
-        # Ensure there are at least two previous candles to compare with
-        if index > 1:
+        # Ensure there's at least one previous candle to compare with
+        if index > 0:
             current_open = opens[index]
             current_close = closes[index]
+            current_date = dates[index]
             prev_open = opens[index - 1]
             prev_close = closes[index - 1]
-            b_prev_open = opens[index - 2]
-            b_prev_close = closes[index - 2]
-            current_date = dates[index]
+            prev_low = lows[index - 1]
 
-            # Check for Morning Star pattern
-            is_morning_star = (max(b_prev_open, b_prev_close) < prev_close < prev_open and
-                               current_close > current_open > max(b_prev_open, b_prev_close))
+            # Check for Piercing Pattern
+            is_piercing_pattern = (prev_close < prev_open and
+                                   current_open < prev_low and
+                                   prev_open > current_close > prev_close + ((prev_open - prev_close) / 2))
 
-            # Enter a long position if a Morning Star pattern is detected
-            if is_morning_star and not self.in_position and self.trading_hours(current_date):
+            # Enter a long position if a Piercing Pattern is detected
+            if is_piercing_pattern and not self.in_position and self.trading_hours(current_date):
                 # Assuming entry at the current close
                 entry_price = current_close
                 # Calculate take profit and stop loss as per your strategy
