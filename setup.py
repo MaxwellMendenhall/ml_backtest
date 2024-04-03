@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 import os
 
+version = os.getenv('PACKAGE_VERSION', '0.1.0')
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 readme_path = os.path.join(here, 'README.md')
@@ -13,7 +15,7 @@ with open(requirements_path) as f:
 
 setup(
     name='ml_backtest',
-    version='0.1.0',
+    version=version,
     packages=find_packages(),
     description='Backtesting of trading strategies with machine learning.',
     long_description=long_description,
