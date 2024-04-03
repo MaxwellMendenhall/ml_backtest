@@ -1,9 +1,3 @@
----
-description: >-
-  Trading strategy backtesting with machine learning optimizing best exit point
-  (aka highest point of trade) for each trade, maximizing profit.
----
-
 # Backtesting with Machine Learning
 
 ## Available Patterns
@@ -30,18 +24,17 @@ This software backtest a trading strategy and runs the results through a user de
 Install all dependencies.
 
 ```
-pip install -r requirements.txt
+pip install ml-backtest
 ```
 
 First you need to import all the required classes.
 
 ```python
+from ml_backtest import Backtest, MachineLearning
+from ml_backtest.machine_learning import CandleStickDataProcessing
+from ml_backtest.strategies import InvertedHammer
+from ml_backtest.models import RandomForestRegressorTrainer
 import pandas as pd
-from backtest.backtest import Backtest
-from strategies.invertedhammer import InvertedHammer
-from machine_learning.wrapper import MachineLearning
-from models.rfr import RandomForestRegressorTrainer
-from machine_learning.data import CandleStickDataProcessing
 ```
 
 After that make sure you rename your data-frame columns to these names if they are not already named that.
@@ -65,7 +58,7 @@ After that, we have all the data we need for machine learning to take place. Jus
 ml = MachineLearning(ml_class=RandomForestRegressorTrainer,
                          df=df,
                          results=backtest.get_trades())
-ml.run()
+ml.run(dp_pattern=CandleStickDataProcessing.calculate_inverted_hammer_features)
 ml.dump_model(filename='YOUR FILE NAME')
 ```
 
@@ -75,7 +68,7 @@ After we trained the model, we want to backtest the model and see the results! T
 model, columns, rows = ml.get_util()
 data = ml.get_data()
 
-ml_backtest = Backtest(data, strategy, model=model, columns=columns, rows=rows)
+ml_backtest = Backtest(data, strategy, model=model, columns=columns, rows=rows, cs_pattern=True)
 print(ml_backtest.results())
 ```
 
