@@ -1,4 +1,3 @@
-import pandas as pd
 from ml_backtest import Backtest, MachineLearning
 from ml_backtest.strategies import InvertedHammer
 from ml_backtest.models import RandomForestRegressorTrainer

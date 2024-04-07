@@ -21,7 +21,7 @@ class MachineLearningInterface:
             self.model = None
             self.predictions = None
             self.get_rows = rows if rows is not None else 10
-            self.get_columns = columns if columns is not None else ['Close']
+            self.get_columns = columns if columns is not None else ['close']
 
         else:
             print('Data being passed into MachineLearningWorker is not a list of type DataContainer.')
