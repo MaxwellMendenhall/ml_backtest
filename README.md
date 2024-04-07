@@ -49,15 +49,17 @@ After you have your data-frame prepped you can make an instance of the strategy 
 ```python
 strategy = InvertedHammer()
 backtest = Backtest(df, strategy)
-print(backtest.results())
+print(backtest.get_results())
 ```
 
 After that, we have all the data we need for machine learning to take place. Just declare an instance of the machine learning class and pass the need info into it. The machine learning takes place when the `run` function is called on the class. We can dump the model (saving the model to be used as a standalone file) with the `dump_model` function.&#x20;
 
 ```python
 ml = MachineLearning(ml_class=RandomForestRegressorTrainer,
-                         df=df,
-                         results=backtest.get_trades())
+                    df=df,
+                    results=backtest.get_trades(),
+                    rows=10,
+                    columns=['EMA_Diff', 'SMA_Diff', 'MACD_hist'])
 ml.run(dp_pattern=CandleStickDataProcessing.calculate_inverted_hammer_features)
 ml.dump_model(filename='YOUR FILE NAME')
 ```
@@ -69,7 +71,7 @@ model, columns, rows = ml.get_util()
 data = ml.get_data()
 
 ml_backtest = Backtest(data, strategy, model=model, columns=columns, rows=rows, cs_pattern=True)
-print(ml_backtest.results())
+print(ml_backtest.get_results())
 ```
 
 Thats it! You should see similar output text wise as the outputs provided above. A more in depth _**how to use**_ guide to customize your machine learning and strategy can be found below.

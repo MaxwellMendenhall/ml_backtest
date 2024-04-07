@@ -3,13 +3,15 @@ from ml_backtest.machine_learning import DataProcessing
 from datetime import datetime
 from typing import final
 from sklearn.base import BaseEstimator
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 
 
 class MachineLearningInterface:
 
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self, data: pd.DataFrame,
+                 rows: Optional[int] = None,
+                 columns: Optional[List[str]] = None):
 
         if type(self).get_model != MachineLearningInterface.get_model:
             raise TypeError("get_model method should not be overridden")
@@ -18,8 +20,8 @@ class MachineLearningInterface:
             self.data = data
             self.model = None
             self.predictions = None
-            self.get_rows = 10
-            self.get_columns = ['Close']
+            self.get_rows = rows if rows is not None else 10
+            self.get_columns = columns if columns is not None else ['Close']
 
         else:
             print('Data being passed into MachineLearningWorker is not a list of type DataContainer.')
@@ -59,6 +61,7 @@ class MachineLearningInterface:
         """
         raise NotImplementedError("This method must be implemented by a subclass")
 
+    @final
     def get_model(self):
         """
         Returns the model used in training.

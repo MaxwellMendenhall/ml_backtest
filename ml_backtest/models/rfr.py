@@ -3,20 +3,21 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import pandas as pd
 import talib
+from typing import Optional, List
 
 
 class RandomForestRegressorTrainer(MachineLearningInterface):
 
-    def __init__(self, data: pd.DataFrame):
-        super().__init__(data)
-        # this is the number of rows before each target you want trained
-        self.get_rows = 10
-        # these are the columns you want trained, in my case I want the column
-        # that is already there and a column I am adding in the feature_engineer()
-        # method
+    def __init__(self, data: pd.DataFrame, rows: Optional[int] = None,
+                 columns: Optional[List[str]] = None):
+        super().__init__(data,  rows, columns)
+        # Additional initialization specific to RandomForestRegressorTrainer can go here.
+        # For example, setting up model-specific parameters or preprocessing steps.
+        # self.model_specific_param = some_value
 
-        # 'EMA_Diff', 'SMA_Diff', 'RSI', 'MACD', 'MACD_signal', 'MACD_hist'
-        self.get_columns = ['EMA_Diff', 'SMA_Diff', 'MACD_hist']
+        # If there's additional setup required for the RandomForest model,
+        # that doesn't fit the pattern provided by MachineLearningInterface,
+        # it can be performed here.
 
     def feature_engineer(self):
         # here is where you can add addition columns of features you want to be used in training

@@ -34,6 +34,10 @@ class Backtest:
         self.__columns = columns
         self.__rows = rows
         self.__cs_pattern = cs_pattern
+        self.__backtest = None
+
+        self.__run()
+        self.__results()
 
     def __run(self):
         dates = self.__data['date'].values
@@ -55,7 +59,7 @@ class Backtest:
         for index in tqdm(range(len(dates)), total=len(dates)):
             # Assuming strategy.on_data can be adapted or is simplified for demonstration
             self.__strategy.on_data(index, lows[:index + 1], highs[:index + 1],
-                                  close[:index + 1], open[:index + 1], dates[:index + 1])
+                                    close[:index + 1], open[:index + 1], dates[:index + 1])
 
             for position in list(self.__strategy.positions):  # Iterate over a shallow copy if positions are modified
                 exit_price = None
@@ -129,33 +133,36 @@ class Backtest:
         self.__completed_trades.append(position)
         self.__strategy.in_position = False
 
-    def results(self) -> pd.DataFrame:
-        self.__run()
+    def __results(self) -> pd.DataFrame:
 
         wins = self.__short_wins + self.__long_wins
         loses = self.__short_loses + self.__long_loses
-        backtest_result = [{'start time': self.__start_time,
-                            'end time': self.__end_time,
-                            '# of trades': self.__trade_counter,
-                            '# of wins': wins,
-                            '# of loses': loses,
-                            'win rate': f'{np.around((wins / (wins + loses)) * 100, decimals=2)}%',
-                            '# of long wins': self.__long_wins,
-                            '# of long loses': self.__long_loses,
-                            '# of long evens': self.__long_evens,
-                            '# of short wins': self.__short_wins,
-                            '# of short loses': self.__short_loses,
-                            '# of short evens': self.__short_evens,
-                            'net profit': np.around(self.__gross_profit + self.__gross_loss, decimals=2),
-                            'max drawdown': f'-{np.around(self.__max_drawdown, decimals=2)}',
-                            'gross profit': np.around(self.__gross_profit, decimals=2),
-                            'gross loss': np.around(self.__gross_loss, decimals=2),
-                            'profit factor': np.around(self.__gross_profit / abs(self.__gross_loss), decimals=2)}]
+        self.__backtest_result = [{'start time': self.__start_time,
+                                   'end time': self.__end_time,
+                                   '# of trades': self.__trade_counter,
+                                   '# of wins': wins,
+                                   '# of loses': loses,
+                                   'win rate': f'{np.around((wins / (wins + loses)) * 100, decimals=2)}%',
+                                   '# of long wins': self.__long_wins,
+                                   '# of long loses': self.__long_loses,
+                                   '# of long evens': self.__long_evens,
+                                   '# of short wins': self.__short_wins,
+                                   '# of short loses': self.__short_loses,
+                                   '# of short evens': self.__short_evens,
+                                   'net profit': np.around(self.__gross_profit + self.__gross_loss, decimals=2),
+                                   'max drawdown': f'-{np.around(self.__max_drawdown, decimals=2)}',
+                                   'gross profit': np.around(self.__gross_profit, decimals=2),
+                                   'gross loss': np.around(self.__gross_loss, decimals=2),
+                                   'profit factor': np.around(self.__gross_profit / abs(self.__gross_loss),
+                                                              decimals=2)}]
 
-        backtest_df = pd.DataFrame(backtest_result)
-        backtest_df = backtest_df.T
-        return backtest_df
+        self.__backtest_df = pd.DataFrame(self.__backtest_result)
+        self.__backtest_df = self.__backtest_df.T
+        return self.__backtest_df
 
     def get_trades(self) -> pd.DataFrame:
         completed_trades_df = pd.DataFrame(self.__completed_trades)
         return completed_trades_df
+
+    def get_results(self) -> pd.DataFrame:
+        return self.__backtest_df

@@ -15,11 +15,13 @@ if __name__ == '__main__':
     strategy = InvertedHammer()
 
     backtest = Backtest(Data.data(), strategy)
-    print(backtest.results())
+    print(backtest.get_results())
 
     ml = MachineLearning(ml_class=RandomForestRegressorTrainer,
                          df=Data.data(),
-                         results=backtest.get_trades())
+                         results=backtest.get_trades(),
+                         rows=10,
+                         columns=['EMA_Diff', 'SMA_Diff', 'MACD_hist'])
     ml.run(dp_pattern=CandleStickDataProcessing.calculate_inverted_hammer_features)
     ml.dump_model(filename='YOUR MODEL FILE NAME')
     model, columns, rows = ml.get_util()
@@ -27,4 +29,4 @@ if __name__ == '__main__':
 
     # make sure to pass ml.get_data() in as the data for ml backtesting
     ml_backtest = Backtest(data, strategy, model=model, columns=columns, rows=rows, cs_pattern=True)
-    print(ml_backtest.results())
+    print(ml_backtest.get_results())

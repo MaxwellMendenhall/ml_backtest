@@ -3,7 +3,7 @@ from joblib import dump
 from ml_backtest.interfaces import MachineLearningInterface, TargetInterface
 from sklearn.model_selection import train_test_split
 from ml_backtest.machine_learning import DataProcessing
-from typing import Type
+from typing import Type, List, Optional
 import pandas as pd
 import os
 
@@ -12,14 +12,20 @@ class MachineLearning:
 
     def __init__(self, ml_class: Type[MachineLearningInterface],
                  df: pd.DataFrame, results: pd.DataFrame,
-                 target_class: Type[TargetInterface] = None):
+                 target_class: Type[TargetInterface] = None,
+                 rows: Optional[int] = None,
+                 columns: Optional[List[str]] = None):
         self.__df = df
         self.__results = results
+
         if target_class is not None:
             self.__target_class = target_class(trades=self.__results, data=self.__df)
             self.__target_class.target_engineer()
             self.__results = self.__target_class.trades
-        self.__ml = ml_class(self.__df)
+        if rows is not None and columns is not None:
+            self.__ml = ml_class(data=self.__df, rows=rows, columns=columns)
+        else:
+            self.__ml = ml_class(data=self.__df)
 
     def run(self, dp_pattern=None) -> None:
         self.__ml.feature_engineer()
