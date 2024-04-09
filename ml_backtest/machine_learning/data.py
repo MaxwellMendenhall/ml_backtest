@@ -106,12 +106,7 @@ class CandleStickDataProcessing:
         upper_shadow_length = current_high - max(current_open, current_close)
         lower_shadow_length = min(current_open, current_close) - current_low
         candlestick_length = current_high - current_low
-        return {
-            "body_length": body_length,
-            "upper_shadow_length": upper_shadow_length,
-            "lower_shadow_length": lower_shadow_length,
-            "candlestick_length": candlestick_length
-        }
+        return np.array([body_length, upper_shadow_length, lower_shadow_length, candlestick_length])
 
     @staticmethod
     def calculate_engulfing_features(current_open, current_close, prev_open, prev_close):
@@ -119,7 +114,7 @@ class CandleStickDataProcessing:
         previous_body = abs(prev_close - prev_open)
         engulfing_ratio = current_body / previous_body if previous_body else 0
 
-        return engulfing_ratio
+        return np.array([engulfing_ratio])
 
     @staticmethod
     def calculate_inverted_hammer_features(current_open, current_close, current_high, current_low):
@@ -131,3 +126,54 @@ class CandleStickDataProcessing:
         body_to_total_ratio = body_length / (total_length + 0.001)
 
         return np.array([upper_to_body_ratio, body_to_total_ratio])
+
+    @staticmethod
+    def calculate_bullish_harami_features(current_open, current_close, prev_open, prev_close):
+        current_body_length = abs(current_close - current_open)
+        previous_body_length = abs(prev_close - prev_open)
+        body_length_ratio = current_body_length / (previous_body_length + 0.001)
+        return np.array([body_length_ratio])
+
+    @staticmethod
+    def calculate_dragonfly_doji_features(current_open, current_close, current_high, current_low):
+        body_length = abs(current_open - current_close)
+        lower_shadow_length = min(current_open, current_close) - current_low
+        total_length = current_high - current_low
+        lower_to_body_ratio = lower_shadow_length / (body_length + 0.001)
+        body_to_total_ratio = body_length / (total_length + 0.001)
+        return np.array([lower_to_body_ratio, body_to_total_ratio])
+
+    @staticmethod
+    def calculate_hammer_features(current_open, current_close, current_high, current_low):
+        body_length = abs(current_open - current_close)
+        lower_shadow_length = min(current_open, current_close) - current_low
+        total_length = current_high - current_low
+        lower_to_body_ratio = lower_shadow_length / (body_length + 0.001)
+        body_to_total_ratio = body_length / (total_length + 0.001)
+        return np.array([lower_to_body_ratio, body_to_total_ratio])
+
+    @staticmethod
+    def calculate_morning_star_features(b_prev_open, b_prev_close, prev_open, prev_close, current_open, current_close):
+        first_candle_body_length = abs(b_prev_close - b_prev_open)
+        third_candle_body_length = abs(current_close - current_open)
+        middle_candle_range = abs(prev_close - prev_open)
+        body_length_ratio = third_candle_body_length / (first_candle_body_length + 0.001)
+        middle_range_to_body_ratio = middle_candle_range / (third_candle_body_length + 0.001)
+        return np.array([body_length_ratio, middle_range_to_body_ratio])
+
+    @staticmethod
+    def calculate_morning_star_doji_features(b_prev_open, b_prev_close, prev_high,
+                                             prev_low, current_open, current_close):
+        doji_range = prev_high - prev_low
+        third_candle_body_length = abs(current_close - current_open)
+        first_to_third_body_ratio = abs(b_prev_close - b_prev_open) / (third_candle_body_length + 0.001)
+        doji_to_body_ratio = doji_range / (third_candle_body_length + 0.001)
+        return np.array([first_to_third_body_ratio, doji_to_body_ratio])
+
+    @staticmethod
+    def calculate_piercing_pattern_features(prev_open, prev_close, current_open, current_close):
+        previous_body_length = abs(prev_close - prev_open)
+        current_body_length = abs(current_close - current_open)
+        body_length_ratio = current_body_length / (previous_body_length + 0.001)
+        penetration_ratio = (current_close - prev_close) / (prev_open - prev_close + 0.001)
+        return np.array([body_length_ratio, penetration_ratio])

@@ -10,7 +10,6 @@ class PiercingPattern(Strategy):
         self.market_close_time = time(16, 10)
 
     def on_data(self, index, lows, highs, closes, opens, dates):
-        # Ensure there's at least one previous candle to compare with
         if index > 0:
             current_open = opens[index]
             current_close = closes[index]
@@ -19,22 +18,34 @@ class PiercingPattern(Strategy):
             prev_close = closes[index - 1]
             prev_low = lows[index - 1]
 
-            # Check for Piercing Pattern
-            is_piercing_pattern = (prev_close < prev_open and
-                                   current_open < prev_low and
-                                   prev_open > current_close > prev_close + ((prev_open - prev_close) / 2))
+            is_piercing_pattern = CandleStickPatterns.is_piercing_pattern(current_open=current_open,
+                                                                          current_close=current_close,
+                                                                          prev_open=prev_open,
+                                                                          prev_close=prev_close,
+                                                                          prev_low=prev_low)
 
-            # Enter a long position if a Piercing Pattern is detected
             if is_piercing_pattern and not self.in_position and self.trading_hours(current_date):
-                # Assuming entry at the current close
+                trade_metadata = {
+                    'current_open': current_open,
+                    'prev_open': prev_open,
+                    'prev_close': prev_close,
+                    'current_close': current_close
+                }
                 entry_price = current_close
-                # Calculate take profit and stop loss as per your strategy
+
                 if self.model is not None:
-                    prediction = self.predict(current_date)
-                    take_profit = entry_price + prediction
+                    if self.cs_patterns:
+                        np_l = CandleStickDataProcessing.calculate_piercing_pattern_features(**trade_metadata)
+                        np_l_2d = np_l.reshape(1, -1)
+                        prediction = self.predict(current_date, np_l_2d)
+                        take_profit = entry_price + prediction
+                    else:
+                        prediction = self.predict(current_date)
+                        take_profit = entry_price + prediction
                 else:
                     take_profit = entry_price + 50
                 stop_loss = entry_price - 37
                 entry_time = dates[index]
 
-                self.buy(price=entry_price, take_profit=take_profit, stop_loss=stop_loss, entry_time=entry_time)
+                self.buy(price=entry_price, take_profit=take_profit, stop_loss=stop_loss,
+                         entry_time=entry_time, metadata=trade_metadata)

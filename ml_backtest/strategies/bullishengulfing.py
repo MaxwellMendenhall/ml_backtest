@@ -22,18 +22,15 @@ class BullishEngulfing(Strategy):
                                                                             prev_open=prev_open,
                                                                             prev_close=prev_close)
 
-            # Enter a long position if a bullish engulfing pattern is detected
             if is_bullish_engulfing and not self.in_position and self.trading_hours(current_date):
-                # Make the metadata for the candle stick features for Machine Learning
                 trade_metadata = {
                     'current_open': current_open,
                     'current_close': current_close,
                     'prev_open': prev_open,
                     'prev_close': prev_close
                 }
-                # Assuming you want to enter at the next candle's open, which is current_close
                 entry_price = current_close
-                # Calculate take profit and stop loss as per your strategy
+
                 if self.model is not None:
                     if self.cs_patterns:
                         np_l = CandleStickDataProcessing.calculate_engulfing_features(**trade_metadata)

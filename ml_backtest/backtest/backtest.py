@@ -158,7 +158,6 @@ class Backtest:
 
         self.__backtest_df = pd.DataFrame(self.__backtest_result)
         self.__backtest_df = self.__backtest_df.T
-        return self.__backtest_df
 
     def get_trades(self) -> pd.DataFrame:
         completed_trades_df = pd.DataFrame(self.__completed_trades)
