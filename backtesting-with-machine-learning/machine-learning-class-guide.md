@@ -4,106 +4,107 @@ To start customizing and overriding the default settings for you machine learnin
 
 To start we want to import the parent class.
 
+```python
+from ml_backtest.interfaces import MachineLearningInterface
 ```
-from memick.ml_util.ml_worker import MachineLearningWorker
-```
-
-### Methods and Var's needed to know
-
-There are 3 functions you need to implement. First one is `feature_engineer(self)`, second is `train(self, x_train, y_train, x_test, y_test)`, and final one is `predict(self, x_train, y_train, x_test, y_test)` along with the `__init__(self, data: pd.DataFrame)` constructor.&#x20;
-
-All the accessible variables are `data`, `model`, `predictions`, `get_rows`, `get_columns`, and `get_target`.
-
-Before the methods are explained, the variables must be understood. The parent machine learning class will have default values for everything in case something is not overriden or used. Here are the values and what they do.
-
-<pre class="language-python"><code class="lang-python"><strong># this is a dataframe that provides all the data
-</strong><strong># to be used in feature engineering and training 
-</strong><strong>self.data = data
-</strong><strong>
-</strong><strong># this var is used to train and fir with your 
-</strong><strong># desired machine learn module
-</strong>self.model = None
-
-# use this var for predictions with the model
-self.predictions = None
-
-# used to get the number of rows before trade
-# entries, used in training
-self.get_rows = 10
-
-# used to get columns wanted in to be used in
-# training
-self.get_columns = ['Close']
-
-# used to set the Y value in machine learning, 
-# or in other words the target
-self.get_target = 'DifferenceFromOpen'
-</code></pre>
 
 ### Building the class
 
 Next step is using these variables in the methods. First up is defining the constructor so you have the data avaible to you to perform youe feature engineering on.
 
 ```python
-from memick.ml_util.ml_worker import MachineLearningWorker
+from ml_backtest.interfaces import MachineLearningInterface
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 import pandas as pd
+import talib
+from typing import Optional, List
 
 
-class RandomForestRegressorTrainer(MachineLearningWorker):
+class RandomForestRegressorTrainer(MachineLearningInterface):
 
-        def __init__(self, data: pd.DataFrame):
-        super().__init__(data)
-        # this is the number of rows before each target you want trained
-        self.get_rows = 10
-        # these are the columns you want trained, in my case I want the column
-        # that is already there and a column I am adding in the feature_engineer()
-        # method
-        self.get_columns = ['Close', 'SMA']
+    def __init__(self, data: pd.DataFrame, rows: Optional[int] = None,
+                 columns: Optional[List[str]] = None):
+        super().__init__(data,  rows, columns)
+        # Additional initialization specific to RandomForestRegressorTrainer can go here.
+        # For example, setting up model-specific parameters or preprocessing steps.
+        # self.model_specific_param = some_value
+
+        # If there's additional setup required for the RandomForest model,
+        # that doesn't fit the pattern provided by MachineLearningInterface,
+        # it can be performed here.
 ```
 
 After we defined our constructor we can get to the fun part! Creating extra features so we can get the best possible predictions! After we create extra features we can then just call the train method and the prediction method.
 
 ```python
-from memick.ml_util.ml_worker import MachineLearningWorker
+from ml_backtest.interfaces import MachineLearningInterface
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import pandas as pd
+import talib
+from typing import Optional, List
 
 
-class RandomForestRegressorTrainer(MachineLearningWorker):
+class RandomForestRegressorTrainer(MachineLearningInterface):
 
-        def __init__(self, data: pd.DataFrame):
-                super().__init__(data)
-                # this is the number of rows before each target you want trained
-                self.get_rows = 10
-                # these are the columns you want trained, in my case I want the column
-                # that is already there and a column I am adding in the feature_engineer()
-                # method
-                self.get_columns = ['Close', 'SMA']
-        
-        def feature_engineer(self):
-                # here is where you can add addition columns of features you want to be used in training
-                # just make sure you edit the 'self.data' with the features you want as that is the dataframe being
-                # used in training
-                self.data['SMA'] = self.data['Close'].rolling(window=10).mean()
-                
-        def train(self, x_train, y_train, x_test, y_test):
-                # here is where you define the model you want for training
-                self.model = RandomForestRegressor(n_estimators=100, random_state=42)
-                self.model.fit(x_train, y_train)
-                
-        def predict(self, x_train, y_train, x_test, y_test):
-                # here is where the predictions will appear
-                # you can get different values for the predictions
-                # like calculating the residuals
-                self.predictions = self.model.predict(x_test)
-        
-                mse = mean_squared_error(y_test, self.predictions)
-                print(f"Mean Squared Error: {mse}")
+    def __init__(self, data: pd.DataFrame, rows: Optional[int] = None,
+                 columns: Optional[List[str]] = None):
+        super().__init__(data,  rows, columns)
+        # Additional initialization specific to RandomForestRegressorTrainer can go here.
+        # For example, setting up model-specific parameters or preprocessing steps.
+        # self.model_specific_param = some_value
+
+        # If there's additional setup required for the RandomForest model,
+        # that doesn't fit the pattern provided by MachineLearningInterface,
+        # it can be performed here.
+
+    def feature_engineer(self):
+        # here is where you can add addition columns of features you want to be used in training
+        # just make sure you edit the 'self.data' with the features you want as that is the dataframe being
+        # used in training
+        self.data['SMA'] = self.data['close'].rolling(window=10).mean()
+        self.data['EMA'] = talib.EMA(self.data['close'], timeperiod=10)
+        self.data['RSI'] = talib.RSI(self.data['close'], timeperiod=14)
+        self.data['MACD'], self.data['MACD_signal'], self.data['MACD_hist'] = talib.MACD(self.data['close'],
+                                                                                         fastperiod=12, slowperiod=26,
+                                                                                         signalperiod=9)
+        self.data['SMA_Diff'] = self.data['SMA'].diff()
+        self.data['EMA_Diff'] = self.data['EMA'].diff()
+
+    def train(self, x_train, y_train, x_test, y_test):
+        # here is where you define the model you want for training
+        self.model = RandomForestRegressor(n_estimators=100, random_state=42)
+        self.model.fit(x_train, y_train)
+
+    def predict(self, x_train, y_train, x_test, y_test):
+        # here is where the predictions will appear
+        # you can get different values for the predictions
+        # like calculating the residuals
+        self.predictions = self.model.predict(x_test)
+
+        mse = mean_squared_error(y_test, self.predictions)
+        print(f"Mean Squared Error: {mse}")
 ```
 
 That is it! The goal of this child class is to take the abstraction of tedous stock market machine learning away from the user. Do not have to worry about how to get the data, just need to define what you want.&#x20;
 
-### Changing Target Warning
+### Changing Target
 
-The target right now is defined as `self.get_target = 'DifferenceFromOpen'` . Right now the code does not support the change of target.&#x20;
+Right now the target can only be adatable via a number. If you do not want the defualt magnitude value for the target (which is highest high of every trade) you can define your own target by implementing the following parent class.
+
+```python
+from ml_backtest.interfaces import TargetInterface
+```
+
+After that just build up a simple method for your target class.
+
+```python
+class BasicTarget(TargetInterface):
+    def target_engineer(self):
+        min_value = self.trades['target'].min()
+        self.trades['target'] = self.trades['target'].apply(lambda x: min(x, 7))
+        self.trades['target'] = self.trades['target'].apply(lambda x: max(x, min_value))
+```
+
+For every trade there is a target column that you can easily manipualte. That is it! All this code can be found and reviewed inside the package models folder. It is under the name of rfr.py.&#x20;
